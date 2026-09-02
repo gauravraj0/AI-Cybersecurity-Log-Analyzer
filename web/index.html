@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AEGIS · AI Cybersecurity Log Analyzer</title>
+  <link rel="icon" href="/logo.png" />
+  <style>
+    :root {
+      --bg: #05070d;
+      --panel: rgba(10,16,26,.86);
+      --line: rgba(0,229,255,.16);
+      --cyan: #00e5ff;
+      --teal: #3dffc6;
+      --red: #ff3b5c;
+      --orange: #ff9f1c;
+      --yellow: #ffd166;
+      --text: #e8f3fb;
+      --muted: #8aa0b5;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: #05070d; color: var(--text); font-family: ui-sans-serif, system-ui, "Segoe UI", sans-serif; }
+    a { color: inherit; text-decoration: none; }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    h1,h2,h3 { margin: 0; letter-spacing: -0.03em; }
+    p { margin: 0; }
+    .top {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 20px 36px; position: relative; z-index: 2;
+    }
+    .brand { display: flex; gap: 10px; align-items: center; }
+    .brand img { width: 40px; height: 40px; border-radius: 10px; }
+    .brand b { letter-spacing: .16em; font-size: 18px; }
+    .brand small { display: block; color: var(--muted); letter-spacing: .14em; font-size: 10px; text-transform: uppercase; }
+    .hero-wrap { position: relative; overflow: hidden; min-height: 100vh; }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background: #05070d url("/hero-soc.jpg") center/cover no-repeat;
+    }
+    .hero-bg:after {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(90deg, rgba(5,7,13,.94), rgba(5,7,13,.62) 55%, rgba(5,7,13,.5));
+    }
+    .hero {
+      position: relative; z-index: 1;
+      display: grid; grid-template-columns: 1.15fr .85fr; gap: 32px;
+      padding: 18px 36px 64px; align-items: center;
+    }
+    .kicker { color: var(--cyan); letter-spacing: .2em; font-size: 11px; text-transform: uppercase; }
+    .hero h1 { font-size: clamp(40px, 6vw, 70px); line-height: .95; margin: 12px 0 16px; }
+    .hero h1 span { color: var(--cyan); }
+    .lede { font-size: 18px; color: #b7c9d8; max-width: 560px; line-height: 1.5; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn, .ghost {
+      border: 1px solid var(--line); border-radius: 12px; padding: 11px 16px; cursor: pointer; background: transparent; color: var(--muted);
+    }
+    .btn { color: var(--cyan); background: linear-gradient(180deg, rgba(0,229,255,.18), rgba(0,229,255,.05)); font-weight: 700; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+    .chip { border: 1px solid var(--line); border-radius: 999px; padding: 6px 10px; font-size: 12px; color: var(--cyan); }
+    .card {
+      background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 16px;
+    }
+    .card img { width: 100%; display: block; border-radius: 12px; min-height: 220px; object-fit: cover; }
+    .features { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 0 36px 56px; }
+    .feature { background: rgba(8,14,22,.75); border: 1px solid var(--line); border-radius: 16px; padding: 18px; min-height: 150px; }
+    .feature h3 { margin: 8px 0; font-size: 16px; }
+    .feature p { color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .section { position: relative; z-index: 1; padding: 10px 36px 70px; }
+    .how { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 18px; }
+    .step { border: 1px solid var(--line); border-radius: 16px; padding: 16px; background: rgba(8,14,22,.6); }
+    .step .n { color: var(--cyan); font-size: 22px; font-weight: 800; }
+    .login-card input {
+      width: 100%; background: #070c14; border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; outline: none;
+    }
+    .login-card label { display: block; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 10px 0 6px; }
+    .demo { margin-top: 12px; display: grid; gap: 6px; }
+    .demo button { text-align: left; background: transparent; border: 1px dashed var(--line); border-radius: 10px; padding: 8px 10px; cursor: pointer; }
+    .shell { display: none; min-height: 100vh; grid-template-columns: 240px 1fr; }
+    .shell.on { display: grid; }
+    .side { border-right: 1px solid var(--line); padding: 16px 12px; background: #080c14; }
+    .nav-btn { display: block; width: 100%; text-align: left; background: transparent; border: 0; color: var(--muted); padding: 10px 12px; border-radius: 10px; cursor: pointer; }
+    .nav-btn.on, .nav-btn:hover { color: var(--cyan); background: rgba(0,229,255,.08); }
+    .main { padding: 20px 24px 48px; }
+    .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0; }
+    .stat { font-size: 28px; font-weight: 800; margin-top: 8px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; color: var(--muted); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; padding: 8px; border-bottom: 1px solid var(--line); }
+    td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,.05); vertical-align: top; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; text-transform: uppercase; }
+    .critical, .SEVERE, .HIGH { color: var(--red); }
+    .high { color: var(--orange); }
+    .medium { color: var(--yellow); }
+    .low, .info { color: var(--cyan); }
+    .err { color: var(--red); font-size: 13px; margin-top: 8px; }
+    .hidden { display: none !important; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+    textarea { width: 100%; min-height: 180px; background: #070c14; border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
+    @media (max-width: 980px) {
+      .hero, .features, .how, .kpis, .shell { grid-template-columns: 1fr; }
+      .top, .hero, .features, .section { padding-left: 16px; padding-right: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="landing" class="hero-wrap">
+    <div class="hero-bg"></div>
+    <nav class="top">
+      <div class="brand">
+        <img src="/logo.png" alt="AEGIS logo" />
+        <div><b>AEGIS</b><small>Cyber defense</small></div>
+      </div>
+      <div class="row">
+        <button class="ghost" type="button" onclick="showLogin()">Console login</button>
+        <button class="btn" type="button" onclick="showLogin()">Launch demo</button>
+      </div>
+    </nav>
+    <section class="hero">
+      <div>
+        <div class="kicker">AI Cybersecurity Log Analyzer</div>
+        <h1>See every threat.<br /><span>Stop every breach.</span></h1>
+        <p class="lede">AEGIS ingests application and server logs, detects suspicious patterns with machine learning, and writes analyst-grade incident summaries so your SOC can respond in minutes.</p>
+        <div class="row" style="margin-top:22px">
+          <button class="btn" type="button" onclick="showLogin()">Access the SOC console</button>
+          <a class="ghost" href="#how">How detection works</a>
+        </div>
+        <div class="chips">
+          <span class="chip">Python</span><span class="chip">React</span><span class="chip">FastAPI</span>
+          <span class="chip">PostgreSQL / SQL</span><span class="chip">Machine Learning</span>
+          <span class="chip">Generative AI</span><span class="chip">REST APIs</span><span class="chip">Docker</span>
+        </div>
+      </div>
+      <div class="card">
+        <img src="/threat-map.jpg" alt="Global threat map" />
+        <p style="color:var(--muted);font-size:13px;margin-top:10px">Live telemetry: signatures, Isolation Forest outliers, and IP reputation in one picture.</p>
+      </div>
+    </section>
+    <div class="features">
+      <div class="feature"><h3>Log ingestion</h3><p>Paste or upload nginx, syslog, and JSON. Parsers normalize events into one timeline.</p></div>
+      <div class="feature"><h3>Anomaly detection</h3><p>Isolation Forest scores hour-of-day, failure ratio, path diversity, and byte volume.</p></div>
+      <div class="feature"><h3>Suspicious activity</h3><p>SQLi, XSS, brute force, traversal, scanners, exfil bursts, ransomware precursors.</p></div>
+      <div class="feature"><h3>AI incident summaries</h3><p>Every cluster gets a MITRE-mapped narrative, confidence, and a response playbook.</p></div>
+    </div>
+    <section class="section" id="how">
+      <div class="kicker">Pipeline</div>
+      <h2>From raw logs to a decision.</h2>
+      <div class="how">
+        <div class="step"><div class="n">01</div><h3>Ingest</h3><p class="lede" style="font-size:13px;margin-top:8px">Upload files or paste combined / JSON / syslog.</p></div>
+        <div class="step"><div class="n">02</div><h3>Detect</h3><p class="lede" style="font-size:13px;margin-top:8px">Signatures + Isolation Forest + burst clustering.</p></div>
+        <div class="step"><div class="n">03</div><h3>Classify</h3><p class="lede" style="font-size:13px;margin-top:8px">Severity, MITRE ATT&CK, IP reputation, geo.</p></div>
+        <div class="step"><div class="n">04</div><h3>Respond</h3><p class="lede" style="font-size:13px;margin-top:8px">AI narrative, alerts, CSV/JSON reports, RBAC.</p></div>
+      </div>
+    </section>
+  </div>
+
+  <div id="login" class="hero-wrap hidden">
+    <div class="hero-bg"></div>
+    <nav class="top">
+      <div class="brand">
+        <img src="/logo.png" alt="" />
+        <div><b>AEGIS</b><small>Sign in</small></div>
+      </div>
+      <button class="ghost" type="button" onclick="showLanding()">Back</button>
+    </nav>
+    <section class="hero">
+      <div>
+        <div class="kicker">Restricted console</div>
+        <h1>Authenticate<br /><span>to the SOC.</span></h1>
+        <p class="lede">Role-based access. Demo identities are listed on the right.</p>
+      </div>
+      <form class="card login-card" onsubmit="return doLogin(event)">
+        <h2>Console login</h2>
+        <label>Username</label>
+        <input id="user" value="analyst" autocomplete="username" />
+        <label>Password</label>
+        <input id="pass" type="password" value="Analyst#2026" autocomplete="current-password" />
+        <button class="btn" style="width:100%;margin-top:16px" type="submit">Establish session</button>
+        <div id="login-err" class="err"></div>
+        <div class="demo">
+          <button type="button" onclick="fill('admin','Aegis#2026')">Maya Chen · admin<br /><span class="mono">admin / Aegis#2026</span></button>
+          <button type="button" onclick="fill('analyst','Analyst#2026')">Jordan Hale · analyst<br /><span class="mono">analyst / Analyst#2026</span></button>
+          <button type="button" onclick="fill('viewer','Viewer#2026')">Riley Okonkwo · viewer<br /><span class="mono">viewer / Viewer#2026</span></button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div id="shell" class="shell">
+    <aside class="side">
+      <div class="brand" style="padding:8px">
+        <img src="/logo.png" alt="" />
+        <div><b>AEGIS</b><small>SOC console</small></div>
+      </div>
+      <button class="nav-btn on" type="button" onclick="tab('dash', this)">Command center</button>
+      <button class="nav-btn" type="button" onclick="tab('logs', this)">Live monitor</button>
+      <button class="nav-btn" type="button" onclick="tab('inc', this)">Incidents</button>
+      <button class="nav-btn" type="button" onclick="tab('intel', this)">IP intelligence</button>
+      <button class="nav-btn" type="button" onclick="tab('ingest', this)">Log ingest</button>
+      <button class="nav-btn" type="button" onclick="tab('reports', this)">Reports</button>
+      <button class="ghost" style="width:100%;margin-top:18px" type="button" onclick="logout()">Sign out</button>
+    </aside>
+    <div class="main">
+      <div id="who" class="kicker"></div>
+      <section id="tab-dash">
+        <h1>Security operations</h1>
+        <p style="color:var(--muted);margin:8px 0 0">Live posture across ingested logs, ML anomalies, and open incidents.</p>
+        <div class="kpis" id="kpis"></div>
+        <div class="card" id="alerts"></div>
+      </section>
+      <section id="tab-logs" class="hidden">
+        <h1>Live log stream</h1>
+        <div class="card" style="margin-top:12px;overflow:auto" id="logs"></div>
+      </section>
+      <section id="tab-inc" class="hidden">
+        <h1>Incidents</h1>
+        <div id="incs" style="display:grid;gap:12px;margin-top:12px"></div>
+      </section>
+      <section id="tab-intel" class="hidden">
+        <h1>Threat intelligence</h1>
+        <div class="card" style="margin-top:12px;overflow:auto" id="ips"></div>
+      </section>
+      <section id="tab-ingest" class="hidden">
+        <h1>Bring your own telemetry</h1>
+        <p style="color:var(--muted);margin:8px 0 12px">Paste nginx / syslog / JSON. Analysts can also simulate an attack.</p>
+        <textarea id="ingest-text">185.220.101.77 - - [02/Sep/2026:11:04:11 +0000] "GET /api/v2/users?id=1' OR 1=1-- HTTP/1.1" 403 312
+{"timestamp":"2026-09-02T11:04:15Z","source":"sshd","message":"Failed password for root from 103.45.12.90 port 44112 ssh2","ip":"103.45.12.90"}</textarea>
+        <div class="row" style="margin-top:10px">
+          <button class="btn" type="button" onclick="ingest()">Ingest & analyze</button>
+          <button class="ghost" type="button" onclick="simulate()">Simulate live attack</button>
+        </div>
+        <pre id="ingest-out" class="mono" style="white-space:pre-wrap;margin-top:12px;color:var(--muted)"></pre>
+      </section>
+      <section id="tab-reports" class="hidden">
+        <h1>Weekly threat brief</h1>
+        <div class="card" style="margin-top:12px" id="report"></div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn" type="button" onclick="exp('csv')">Export CSV</button>
+          <button class="ghost" type="button" onclick="exp('json')">Export JSON</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

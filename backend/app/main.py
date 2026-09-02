@@ -1013,30 +1013,38 @@ def meta(_user: User = Depends(get_current_user)) -> dict[str, Any]:
     }
 
 
-_DIST = Path(__file__).resolve().parents[2] / "frontend" / "dist"
+_ROOT = Path(__file__).resolve().parents[2]
+_WEB = _ROOT / "web"
+_PUBLIC = _ROOT / "frontend" / "public"
 
 
-def _safe_dist_file(full_path: str) -> Path | None:
-    if not _DIST.exists():
+def _safe_file(root: Path, full_path: str) -> Path | None:
+    if not full_path or not root.exists():
         return None
-    candidate = (_DIST / full_path).resolve()
+    candidate = (root / full_path).resolve()
     try:
-        candidate.relative_to(_DIST.resolve())
+        candidate.relative_to(root.resolve())
     except ValueError:
         return None
-    if candidate.is_file():
-        return candidate
-    return None
+    return candidate if candidate.is_file() else None
 
 
-@app.get("/{full_path:path}")
-async def spa(full_path: str):
+def _html_index(_request: Request):
+    return FileResponse(_WEB / "index.html", media_type="text/html; charset=utf-8")
+
+
+@app.api_route("/", methods=["GET", "HEAD"], include_in_schema=False)
+async def root_page(request: Request):
+    return _html_index(request)
+
+
+@app.api_route("/{full_path:path}", methods=["GET", "HEAD"], include_in_schema=False)
+async def spa(full_path: str, request: Request):
     if full_path.startswith("api/"):
         raise HTTPException(status_code=404, detail="Not found")
-    existing = _safe_dist_file(full_path) if full_path else None
+    existing = _safe_file(_WEB, full_path) or _safe_file(_PUBLIC, full_path)
     if existing:
+        if request.method == "HEAD":
+            return Response(status_code=200)
         return FileResponse(existing)
-    index = _DIST / "index.html"
-    if not index.exists():
-        raise HTTPException(status_code=404, detail="UI not built")
-    return FileResponse(index)
+    return _html_index(request)
