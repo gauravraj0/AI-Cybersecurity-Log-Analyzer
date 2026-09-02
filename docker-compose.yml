@@ -1,0 +1,16 @@
+services:
+  api:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: sqlite:///./aegis.db
+      JWT_SECRET: change-me-in-production
+  web:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    environment:
+      API_PROXY: http://api:8000
+    depends_on:
+      - api
