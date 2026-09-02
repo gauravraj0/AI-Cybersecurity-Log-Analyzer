@@ -55,5 +55,16 @@ export function AuthProvider({ children }) {
 }
 
 export function useAuth() {
-  return useContext(AuthContext);
+  const ctx = useContext(AuthContext);
+  if (!ctx) {
+    return {
+      user: null,
+      ready: true,
+      toast: null,
+      notify: () => {},
+      login: async () => null,
+      logout: () => {},
+    };
+  }
+  return ctx;
 }

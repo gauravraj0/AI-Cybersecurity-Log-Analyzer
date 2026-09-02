@@ -73,11 +73,15 @@ export default function IncidentDetail() {
           )}
           <h3 style={{ marginTop: 22 }}>MITRE ATT&CK</h3>
           <ul className="actions">
-            {inc.mitre.map(([code, name]) => (
-              <li key={code}>
-                <span className="mono">{code}</span> — {name}
-              </li>
-            ))}
+            {(inc.mitre || []).map((item, idx) => {
+              const code = Array.isArray(item) ? item[0] : item?.id || item;
+              const name = Array.isArray(item) ? item[1] : item?.name || "";
+              return (
+                <li key={`${code}-${idx}`}>
+                  <span className="mono">{code}</span> — {name}
+                </li>
+              );
+            })}
           </ul>
           <h3>Indicators</h3>
           <div className="row" style={{ marginTop: 8 }}>

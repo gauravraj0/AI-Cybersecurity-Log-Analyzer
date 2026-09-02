@@ -93,11 +93,11 @@ export default function Layout() {
           <div className="top-meta">
             <div className="clock mono">{clock.toISOString().replace("T", " ").slice(0, 19)} UTC</div>
             <div className="userchip">
-              <div className="avatar">{user.full_name.slice(0, 1)}</div>
+              <div className="avatar">{(user?.full_name || "A").slice(0, 1)}</div>
               <div>
-                {user.full_name}
+                {user?.full_name}
                 <small>
-                  {user.role} · {user.department}
+                  {user?.role} · {user?.department}
                 </small>
               </div>
             </div>

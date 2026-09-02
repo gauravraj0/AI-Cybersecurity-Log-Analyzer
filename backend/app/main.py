@@ -12,8 +12,9 @@ from typing import Any
 
 from fastapi import Depends, FastAPI, File, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, StreamingResponse
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
 from pydantic import BaseModel, Field
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
@@ -42,6 +43,16 @@ app = FastAPI(
     version="1.0.0",
 )
 
+class PreviewHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers["Content-Security-Policy"] = "frame-ancestors *"
+        if "x-frame-options" in response.headers:
+            del response.headers["x-frame-options"]
+        return response
+
+
+app.add_middleware(PreviewHeadersMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -1003,5 +1014,29 @@ def meta(_user: User = Depends(get_current_user)) -> dict[str, Any]:
 
 
 _DIST = Path(__file__).resolve().parents[2] / "frontend" / "dist"
-if _DIST.exists():
-    app.mount("/", StaticFiles(directory=_DIST, html=True), name="ui")
+
+
+def _safe_dist_file(full_path: str) -> Path | None:
+    if not _DIST.exists():
+        return None
+    candidate = (_DIST / full_path).resolve()
+    try:
+        candidate.relative_to(_DIST.resolve())
+    except ValueError:
+        return None
+    if candidate.is_file():
+        return candidate
+    return None
+
+
+@app.get("/{full_path:path}")
+async def spa(full_path: str):
+    if full_path.startswith("api/"):
+        raise HTTPException(status_code=404, detail="Not found")
+    existing = _safe_dist_file(full_path) if full_path else None
+    if existing:
+        return FileResponse(existing)
+    index = _DIST / "index.html"
+    if not index.exists():
+        raise HTTPException(status_code=404, detail="UI not built")
+    return FileResponse(index)

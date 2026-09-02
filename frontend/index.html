@@ -9,9 +9,34 @@
       content="AEGIS — AI Cybersecurity Log Analyzer. Ingest logs, detect anomalies, and generate incident summaries in real time."
     />
     <title>AEGIS · AI Cybersecurity Log Analyzer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Syne:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html, body, #root {
+        margin: 0;
+        min-height: 100%;
+        background: #05070d;
+        color: #e8f3fb;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      window.addEventListener("error", function (event) {
+        var root = document.getElementById("root");
+        if (!root || root.childElementCount) return;
+        root.innerHTML =
+          '<div style="font-family:sans-serif;padding:32px;max-width:720px">' +
+          "<h1>AEGIS failed to start</h1><pre style='white-space:pre-wrap'>" +
+          String(event.message || event.error || "Unknown error") +
+          "</pre></div>";
+      });
+    </script>
   </body>
 </html>
