@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# Databases & secrets
+*.db
+*.sqlite3
+.env
+sentinel.db
+
+# Node / frontend
+node_modules/
+frontend/dist/
+*.local
+
+# ML artifacts
+*.pkl
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store

