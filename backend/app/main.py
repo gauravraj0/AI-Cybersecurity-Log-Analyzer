@@ -12,8 +12,7 @@ from typing import Any
 
 from fastapi import Depends, FastAPI, File, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, StreamingResponse
-from starlette.middleware.base import BaseHTTPMiddleware
+from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
 from starlette.requests import Request
 from pydantic import BaseModel, Field
 from sqlalchemy import func, or_
@@ -43,16 +42,6 @@ app = FastAPI(
     version="1.0.0",
 )
 
-class PreviewHeadersMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        response = await call_next(request)
-        response.headers["Content-Security-Policy"] = "frame-ancestors *"
-        if "x-frame-options" in response.headers:
-            del response.headers["x-frame-options"]
-        return response
-
-
-app.add_middleware(PreviewHeadersMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -1029,22 +1018,20 @@ def _safe_file(root: Path, full_path: str) -> Path | None:
     return candidate if candidate.is_file() else None
 
 
-def _html_index(_request: Request):
-    return FileResponse(_WEB / "index.html", media_type="text/html; charset=utf-8")
+def _html_index():
+    return HTMLResponse((_WEB / "index.html").read_text(encoding="utf-8"))
 
 
 @app.api_route("/", methods=["GET", "HEAD"], include_in_schema=False)
-async def root_page(request: Request):
-    return _html_index(request)
+async def root_page():
+    return _html_index()
 
 
 @app.api_route("/{full_path:path}", methods=["GET", "HEAD"], include_in_schema=False)
-async def spa(full_path: str, request: Request):
+async def spa(full_path: str):
     if full_path.startswith("api/"):
         raise HTTPException(status_code=404, detail="Not found")
     existing = _safe_file(_WEB, full_path) or _safe_file(_PUBLIC, full_path)
     if existing:
-        if request.method == "HEAD":
-            return Response(status_code=200)
         return FileResponse(existing)
-    return _html_index(request)
+    return _html_index()
