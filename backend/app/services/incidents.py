@@ -8,7 +8,6 @@ from ..detection.rules import RuleHit
 from ..detection.classify import display_name
 from ..models import Alert, Incident, IncidentEvent, LogEntry
 from .ai_summary import generate_incident_summary, MITRE_MAP
-from .realtime import manager
 
 logger = logging.getLogger("incidents")
 
@@ -112,18 +111,14 @@ def correlate_hit(db: Session, hit: RuleHit, log: LogEntry) -> tuple[Incident, b
         except Exception as exc:  # noqa: BLE001
             logger.warning("AI summary generation failed: %s", exc)
 
-    import asyncio
-    try:
-        loop = asyncio.get_running_loop()
-        loop.create_task(manager.broadcast("incident", serialize_incident(incident)))
-        loop.create_task(manager.broadcast("alert", {
-            "id": alert.id, "rule_id": alert.rule_id, "rule_name": alert.rule_name,
-            "severity": alert.severity, "message": alert.message,
-            "ip_address": alert.ip_address, "incident_id": incident.id,
-            "created_at": alert.created_at.isoformat() + "Z",
-        }))
-    except RuntimeError:
-        pass
+    from .realtime import broadcast_threadsafe
+    broadcast_threadsafe("incident", serialize_incident(incident))
+    broadcast_threadsafe("alert", {
+        "id": alert.id, "rule_id": alert.rule_id, "rule_name": alert.rule_name,
+        "severity": alert.severity, "message": alert.message,
+        "ip_address": alert.ip_address, "incident_id": incident.id,
+        "created_at": alert.created_at.isoformat() + "Z",
+    })
 
     return incident, created
 

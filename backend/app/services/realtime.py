@@ -7,6 +7,24 @@ from fastapi import WebSocket
 
 logger = logging.getLogger("realtime")
 
+_main_loop: asyncio.AbstractEventLoop | None = None
+
+
+def set_main_loop(loop: asyncio.AbstractEventLoop) -> None:
+    """Called at app startup so worker threads can schedule broadcasts."""
+    global _main_loop
+    _main_loop = loop
+
+
+def broadcast_threadsafe(event_type: str, payload: Any) -> None:
+    """Fan-out an event from any thread (sync endpoints, executor workers)."""
+    if _main_loop is None or _main_loop.is_closed():
+        return
+    try:
+        asyncio.run_coroutine_threadsafe(manager.broadcast(event_type, payload), _main_loop)
+    except RuntimeError:  # loop shutting down
+        pass
+
 
 class ConnectionManager:
     """Fan-out broadcaster for live security events."""

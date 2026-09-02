@@ -157,12 +157,15 @@ class Simulator:
 
     async def _run(self, db_factory):
         self.running = True
+        loop = asyncio.get_running_loop()
         try:
             while self.running:
                 events = self._generate_chunk()
                 db: Session = db_factory()
                 try:
-                    result = ingest_batch(db, events, source_default="simulator")
+                    # blocking DB work stays off the event loop
+                    result = await loop.run_in_executor(
+                        None, ingest_batch, db, events, "simulator")
                     self.events_generated += result["accepted"]
                 finally:
                     db.close()
@@ -175,6 +178,7 @@ class Simulator:
     def start(self, db_factory) -> bool:
         if self.running:
             return False
+        self.running = True  # set synchronously so /status is correct immediately
         self.task = asyncio.create_task(self._run(db_factory))
         return True
 

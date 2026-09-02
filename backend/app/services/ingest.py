@@ -13,7 +13,7 @@ from ..detection.classify import classify
 from ..detection.rules import RuleHit, ml_anomaly_hit, per_log_rules, window_rules
 from ..models import IpProfile, LogEntry
 from . import incidents as incident_svc
-from .realtime import manager
+from .realtime import broadcast_threadsafe
 
 logger = logging.getLogger("ingest")
 
@@ -129,12 +129,7 @@ def ingest_batch(db: Session, raw_logs: list[dict], source_default: str = "api")
     db.commit()
 
     if serialized_stream:
-        import asyncio
-        try:
-            loop = asyncio.get_running_loop()
-            loop.create_task(manager.broadcast("logs", serialized_stream[:200]))
-        except RuntimeError:
-            pass  # sync context (tests/CLI)
+        broadcast_threadsafe("logs", serialized_stream[:200])
 
     return {
         "accepted": accepted,

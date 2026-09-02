@@ -1,4 +1,5 @@
 """SentinelLens - AI Cybersecurity Log Analyzer. FastAPI application entrypoint."""
+import asyncio
 import logging
 import os
 from contextlib import asynccontextmanager
@@ -12,7 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from .config import settings
 from .database import Base, engine
 from .routers import alerts, analytics, auth, incidents, logs, reports, system, ws
-from .services.realtime import manager
+from .services.realtime import manager, set_main_loop
 
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -23,6 +24,7 @@ async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
     from .seed import ensure_seeded
     ensure_seeded()
+    set_main_loop(asyncio.get_running_loop())  # enables WS broadcasts from worker threads
     yield
     simulator_running = False  # simulator task dies with the event loop
 

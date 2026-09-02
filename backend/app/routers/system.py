@@ -22,7 +22,8 @@ def read_status(_: User = Depends(get_current_user)):
 
 
 @router.post("/start", response_model=SimulatorStatus)
-def start(_: User = Depends(require_role("analyst", "admin"))):
+async def start(_: User = Depends(require_role("analyst", "admin"))):
+    # async endpoint -> runs on the event loop, so create_task works
     simulator.start(SessionLocal)
     return _status()
 
