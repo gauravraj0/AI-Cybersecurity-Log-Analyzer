@@ -66,23 +66,23 @@ def search_logs(
     return LogPage(total=total, page=page, page_size=page_size, items=items)
 
 
-@router.get("/logs/{log_id}", response_model=LogOut)
-def get_log(log_id: int, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
-    log = db.get(LogEntry, log_id)
-    if not log:
-        raise HTTPException(404, "Log not found")
-    return log
-
-
 @router.get("/logs/facets")
 def facets(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
-    """Distinct filter values for the search UI."""
+    """Distinct filter values for the search UI (registered before /{log_id})."""
     return {
         "levels": [r[0] for r in db.query(LogEntry.level).distinct().all() if r[0]],
         "categories": [r[0] for r in db.query(LogEntry.category).distinct().all() if r[0]],
         "severities": [r[0] for r in db.query(LogEntry.severity).distinct().all() if r[0]],
         "event_types": [r[0] for r in db.query(LogEntry.event_type).distinct().all() if r[0]],
     }
+
+
+@router.get("/logs/{log_id}", response_model=LogOut)
+def get_log(log_id: int, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
+    log = db.get(LogEntry, log_id)
+    if not log:
+        raise HTTPException(404, "Log not found")
+    return log
 
 
 # ------------------------------------------------------------------ ingestion
